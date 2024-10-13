@@ -9,14 +9,11 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -37,16 +34,12 @@ jobs:
         with:
           python-version: '3.x'  # Specify the desired Python version
 
-      - name: Install dependencies
+      - name: Create Virtual Environment
         run: |
-          # Create and activate virtual environment
           python3 -m venv venv
           source venv/bin/activate
-
-          # Upgrade pip and install nbconvert
           pip install --upgrade pip
           pip install nbconvert
-          # Add any other necessary package installations here
           pip install -r requirements.txt  # If you have other packages listed
 
       - name: Execute conversion script
@@ -55,10 +48,9 @@ jobs:
           python scripts/convert_notebooks.py
 
       - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
+        run: |
+          source venv/bin/activate
+          bundle exec jekyll build  # Use the bundle command to ensure dependencies are loaded
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
